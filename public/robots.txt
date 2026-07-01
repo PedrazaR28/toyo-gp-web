@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://toyo-gp-web.vercel.app/sitemap.xml
+Sitemap: https://www.toyogp.com/sitemap.xml
