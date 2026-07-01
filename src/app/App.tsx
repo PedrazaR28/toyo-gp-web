@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { supabase } from "../lib/supabase";
 import {
   Car,
   Shield,
@@ -111,10 +112,38 @@ export default function App() {
     if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitted(true);
-  };
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  const { error } = await supabase.from("clientes").insert([
+    {
+      nombre: form.nombre,
+      telefono: form.celular,
+      correo: form.email,
+      ciudad: form.ciudad,
+      tipo_interes: form.interes,
+      mensaje: form.mensaje,
+    },
+  ]);
+
+  if (error) {
+    console.error("Error al guardar:", error);
+    alert("Ocurrió un error al enviar la información.");
+    return;
+  }
+
+  setSubmitted(true);
+
+  setForm({
+    nombre: "",
+    celular: "",
+    email: "",
+    ciudad: "",
+    interes: "",
+    mensaje: "",
+    autorizo: false,
+  });
+};
 
   return (
     <div
