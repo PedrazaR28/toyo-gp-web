@@ -59,7 +59,7 @@ export default function Header({ forceSolid = false }: HeaderProps) {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
-          {/* Logo */}
+          {/* Logo aumentado en un 15% */}
           <Link
             to="/"
             onClick={() => {
@@ -68,12 +68,12 @@ export default function Header({ forceSolid = false }: HeaderProps) {
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }
             }}
-            className="flex items-center select-none"
+            className="flex items-center select-none py-1 group"
           >
             <img
               src={logoToyoGP}
               alt="TOYO GP"
-              className="h-12 w-auto object-contain"
+              className="h-[55px] sm:h-[58px] lg:h-[62px] w-auto object-contain transition-transform duration-300 group-hover:scale-105"
             />
           </Link>
 

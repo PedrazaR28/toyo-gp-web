@@ -65,6 +65,14 @@ export default function TratamientoDatosPage() {
             <span className="text-gray-700">{LEGAL_DATA.nit}</span>
           </div>
           <div className="flex flex-col sm:flex-row sm:justify-between border-b border-gray-200/60 pb-2">
+            <span className="font-semibold text-gray-900">Representante Legal:</span>
+            <span className="text-gray-700">{LEGAL_DATA.representanteLegal}</span>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:justify-between border-b border-gray-200/60 pb-2">
+            <span className="font-semibold text-gray-900">Registro Mercantil:</span>
+            <span className="text-gray-700">Matrícula N° {LEGAL_DATA.matriculaMercantil} ({LEGAL_DATA.camaraComercio})</span>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:justify-between border-b border-gray-200/60 pb-2">
             <span className="font-semibold text-gray-900">Área Responsable de Atención:</span>
             <span className="text-gray-700">Área de Atención al Cliente y Protección de Datos</span>
           </div>

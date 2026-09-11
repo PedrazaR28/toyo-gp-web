@@ -85,6 +85,16 @@ export default function HomePage() {
     autorizo: false,
   });
   const [submitted, setSubmitted] = useState(false);
+  const [logoSpinning, setLogoSpinning] = useState(false);
+
+  // Giro suave automático al cargar la página para sorprender visualmente
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLogoSpinning(true);
+      setTimeout(() => setLogoSpinning(false), 1400);
+    }, 800);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     document.title = "TOYO GP Vehículos | Especialistas en Toyota Usados Bogotá";
@@ -102,6 +112,12 @@ export default function HomePage() {
     e.preventDefault();
     const el = document.querySelector(href);
     if (el) el.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleLogoSpin = () => {
+    if (logoSpinning) return;
+    setLogoSpinning(true);
+    setTimeout(() => setLogoSpinning(false), 1400);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -167,13 +183,36 @@ export default function HomePage() {
         />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 text-center">
-          <div className="flex justify-center mb-8">
-            <img
-              src={logoToyoGP}
-              alt="TOYO GP"
-              className="w-auto object-contain"
-              style={{ height: "clamp(8rem, 15vw, 12rem)" }}
-            />
+          {/* Logo GP aumentado en un 20% con efecto de giro innovador en 360° */}
+          <div className="flex justify-center mb-8 [perspective:1000px]">
+            <div
+              onClick={handleLogoSpin}
+              title="Haz clic para girar"
+              className={`relative cursor-pointer select-none group ${
+                logoSpinning ? "animate-spin-360" : "hover:[transform:rotateY(360deg)]"
+              }`}
+              style={{
+                transformStyle: "preserve-3d",
+                transition: logoSpinning
+                  ? undefined
+                  : "transform 1.2s cubic-bezier(0.25, 1, 0.5, 1)",
+              }}
+            >
+              {/* Halo rojo corporativo dinámico */}
+              <div
+                className={`absolute inset-0 -m-6 rounded-full blur-2xl transition-opacity duration-700 pointer-events-none ${
+                  logoSpinning ? "opacity-60" : "opacity-25 group-hover:opacity-70"
+                }`}
+                style={{ background: "radial-gradient(circle, #D90429 0%, transparent 70%)" }}
+              />
+
+              <img
+                src={logoToyoGP}
+                alt="TOYO GP"
+                className="w-auto object-contain relative z-10 drop-shadow-[0_12px_30px_rgba(217,4,41,0.35)] transition-transform duration-300 group-hover:scale-105"
+                style={{ height: "clamp(9.6rem, 18vw, 14.5rem)" }}
+              />
+            </div>
           </div>
           <p
             className="text-white/90 mb-3"

@@ -71,6 +71,14 @@ export default function PoliticaPrivacidadPage() {
             <span className="text-gray-700">{LEGAL_DATA.nit}</span>
           </div>
           <div>
+            <span className="font-semibold text-gray-900 block">Representante Legal:</span>
+            <span className="text-gray-700">{LEGAL_DATA.representanteLegal}</span>
+          </div>
+          <div>
+            <span className="font-semibold text-gray-900 block">Registro Mercantil:</span>
+            <span className="text-gray-700">Matrícula N° {LEGAL_DATA.matriculaMercantil} ({LEGAL_DATA.camaraComercio})</span>
+          </div>
+          <div>
             <span className="font-semibold text-gray-900 block">Domicilio Principal:</span>
             <span className="text-gray-700">{LEGAL_DATA.ciudad}, {LEGAL_DATA.pais}</span>
           </div>

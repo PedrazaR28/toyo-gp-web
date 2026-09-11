@@ -180,3 +180,21 @@
     line-height: 1.5;
   }
 }
+
+/* Efecto innovador de rotación 3D en 360° para el logotipo GP */
+@keyframes spin360Y {
+  0% {
+    transform: perspective(1000px) rotateY(0deg) scale(1);
+  }
+  50% {
+    transform: perspective(1000px) rotateY(180deg) scale(1.08);
+  }
+  100% {
+    transform: perspective(1000px) rotateY(360deg) scale(1);
+  }
+}
+
+.animate-spin-360 {
+  animation: spin360Y 1.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+

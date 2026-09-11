@@ -45,9 +45,9 @@ export interface LegalConfig {
 }
 
 export const LEGAL_DATA: LegalConfig = {
-  razonSocial: "Toyo Gp Sas",
+  razonSocial: "TOYO GP SAS",
   nombreComercial: "TOYO GP",
-  nit: "901474387",
+  nit: "901474387-7",
   correoContacto: "usadosgp@gmail.com",
   correoAtencion: "usadosgp@gmail.com",
   telefono: "+57 322 819 0056",
@@ -62,9 +62,9 @@ export const LEGAL_DATA: LegalConfig = {
   sicUrl: "https://www.sic.gov.co",
   sicTelefono: "+57 (601) 587 0000",
 
-  /* Placeholders marcados para ser completados por el cliente si se requiere */
-  representanteLegal: "[Representante Legal por definir]",
-  matriculaMercantil: "[Matrícula Mercantil por definir]",
+  /* Datos oficiales de TOYO GP SAS registrados */
+  representanteLegal: "Cristian Pedraza",
+  matriculaMercantil: "3364269",
   camaraComercio: "Cámara de Comercio de Bogotá",
 };
 
