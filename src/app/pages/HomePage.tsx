@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 import { supabase } from "../../lib/supabase";
 import {
   Car,
@@ -86,6 +87,12 @@ export default function HomePage() {
   });
   const [submitted, setSubmitted] = useState(false);
   const [logoSpinning, setLogoSpinning] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string>("");
+  const [honeypot, setHoneypot] = useState<string>("");
+  const [formLoadedAt] = useState<number>(() => Date.now());
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileInstance | null>(null);
 
   // Giro suave automático al cargar la página para sorprender visualmente
   useEffect(() => {
@@ -122,35 +129,65 @@ export default function HomePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(null);
 
-    const { error } = await supabase.from("clientes").insert([
-      {
-        nombre: form.nombre,
-        telefono: form.celular,
-        correo: form.email,
-        ciudad: form.ciudad,
-        tipo_interes: form.interes,
-        mensaje: form.mensaje,
-      },
-    ]);
-
-    if (error) {
-      console.error("Error al guardar:", error);
-      alert("Ocurrió un error al enviar la información.");
+    if (!turnstileToken) {
+      setErrorMessage("Por favor completa la verificación de seguridad antes de enviar.");
       return;
     }
 
-    setSubmitted(true);
+    setIsSubmitting(true);
 
-    setForm({
-      nombre: "",
-      celular: "",
-      email: "",
-      ciudad: "",
-      interes: "",
-      mensaje: "",
-      autorizo: false,
-    });
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/submit-contacto`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({
+          nombre: form.nombre,
+          telefono: form.celular,
+          correo: form.email,
+          ciudad: form.ciudad,
+          tipo_interes: form.interes,
+          mensaje: form.mensaje,
+          autorizo: form.autorizo,
+          turnstile_token: turnstileToken,
+          honeypot: honeypot,
+          form_loaded_at: formLoadedAt,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.ok) {
+        setErrorMessage(result.error || "Ocurrió un error al enviar la información.");
+        turnstileRef.current?.reset();
+        setTurnstileToken("");
+        setIsSubmitting(false);
+        return;
+      }
+
+      setSubmitted(true);
+
+      setForm({
+        nombre: "",
+        celular: "",
+        email: "",
+        ciudad: "",
+        interes: "",
+        mensaje: "",
+        autorizo: false,
+      });
+      setTurnstileToken("");
+      setHoneypot("");
+    } catch (err) {
+      console.error("Error al enviar formulario:", err);
+      setErrorMessage("Error de conexión. Por favor verifica tu internet e intenta nuevamente.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -188,9 +225,8 @@ export default function HomePage() {
             <div
               onClick={handleLogoSpin}
               title="Haz clic para girar"
-              className={`relative cursor-pointer select-none group ${
-                logoSpinning ? "animate-spin-360" : "hover:[transform:rotateY(360deg)]"
-              }`}
+              className={`relative cursor-pointer select-none group ${logoSpinning ? "animate-spin-360" : "hover:[transform:rotateY(360deg)]"
+                }`}
               style={{
                 transformStyle: "preserve-3d",
                 transition: logoSpinning
@@ -200,9 +236,8 @@ export default function HomePage() {
             >
               {/* Halo rojo corporativo dinámico */}
               <div
-                className={`absolute inset-0 -m-6 rounded-full blur-2xl transition-opacity duration-700 pointer-events-none ${
-                  logoSpinning ? "opacity-60" : "opacity-25 group-hover:opacity-70"
-                }`}
+                className={`absolute inset-0 -m-6 rounded-full blur-2xl transition-opacity duration-700 pointer-events-none ${logoSpinning ? "opacity-60" : "opacity-25 group-hover:opacity-70"
+                  }`}
                 style={{ background: "radial-gradient(circle, #D90429 0%, transparent 70%)" }}
               />
 
@@ -766,6 +801,18 @@ export default function HomePage() {
                 />
               </div>
 
+              {/* Campo Honeypot invisible contra bots */}
+              <div style={{ display: "none", position: "absolute", left: "-9999px" }} aria-hidden="true">
+                <input
+                  type="text"
+                  name="empresa_website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                />
+              </div>
+
               <div className="flex items-start gap-3">
                 <input
                   required
@@ -787,16 +834,43 @@ export default function HomePage() {
                 </label>
               </div>
 
+              {/* Cloudflare Turnstile */}
+              <div className="flex flex-col items-center justify-center pt-2">
+                <Turnstile
+                  ref={turnstileRef}
+                  siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "0x4AAAAAAFMcCuy3_MZqXRuN"}
+                  onSuccess={(token) => {
+                    setTurnstileToken(token);
+                    setErrorMessage(null);
+                  }}
+                  onError={() => setErrorMessage("No se pudo cargar la verificación de seguridad. Recarga la página.")}
+                  onExpire={() => setTurnstileToken("")}
+                  options={{
+                    theme: "light",
+                    size: "normal",
+                  }}
+                />
+              </div>
+
+              {errorMessage && (
+                <div className="p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs rounded leading-relaxed text-center">
+                  {errorMessage}
+                </div>
+              )}
+
               <button
                 type="submit"
-                className="w-full py-4 text-white uppercase tracking-widest text-sm transition-all duration-200 hover:opacity-90 active:scale-[0.99]"
+                disabled={isSubmitting}
+                className={`w-full py-4 text-white uppercase tracking-widest text-sm transition-all duration-200 ${
+                  isSubmitting ? "opacity-60 cursor-not-allowed" : "hover:opacity-90 active:scale-[0.99]"
+                }`}
                 style={{
                   background: "#D90429",
                   fontFamily: "'Poppins', sans-serif",
                   fontWeight: 700,
                 }}
               >
-                Enviar Solicitud
+                {isSubmitting ? "Enviando..." : "Enviar Solicitud"}
               </button>
             </form>
           )}
